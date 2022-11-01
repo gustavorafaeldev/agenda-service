@@ -24,7 +24,7 @@ public class PacienteService {
         Optional<Paciente> optPaciente = repository.findByCpf(paciente.getCpf());
 
         if(optPaciente.isPresent()) {
-            if(optPaciente.get().getId().equals(paciente.getId())) {
+            if(!optPaciente.get().getId().equals(paciente.getId())) {
                 existeCpf = true;
             }
         }
@@ -46,5 +46,16 @@ public class PacienteService {
 
     public Optional<Paciente> listarPorId(Long id){
         return repository.findById(id);
+    }
+
+    public Paciente alterar(Long id, Paciente paciente) {
+        Optional<Paciente> optionalPaciente = this.listarPorId(id);
+
+        if(optionalPaciente.isEmpty()) {
+            throw new BusinessException("Paciente não cadastrado!");
+        }
+        paciente.setId(id);
+
+        return salvar(paciente);
     }
 }

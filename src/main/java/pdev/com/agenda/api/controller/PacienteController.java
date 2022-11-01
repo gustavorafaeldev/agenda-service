@@ -10,6 +10,7 @@ import pdev.com.agenda.api.response.PacienteResponse;
 import pdev.com.agenda.domain.entity.Paciente;
 import pdev.com.agenda.domain.entity.service.PacienteService;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class PacienteController {
     private final PacienteMapper mapper;
 
     @PostMapping
-    public ResponseEntity<PacienteResponse> salvar(@RequestBody PacienteRequest request) {
+    public ResponseEntity<PacienteResponse> salvar(@Valid @RequestBody PacienteRequest request) {
         Paciente paciente = mapper.toPaciente(request);
         Paciente pacienteSalvo = service.salvar(paciente);
         PacienteResponse pacienteResponse = mapper.toPacienteResponse(paciente);
@@ -52,11 +53,12 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping
-    public ResponseEntity<PacienteResponse> alterar(@RequestBody PacienteRequest request) {
+    @PutMapping("/{id}")
+    public ResponseEntity<PacienteResponse> alterar(@Valid @PathVariable Long id,
+                                                    @RequestBody PacienteRequest request) {
         Paciente paciente = mapper.toPaciente(request);
-        Paciente pacienteSalvo = service.salvar(paciente);
+        Paciente pacienteSalvo = service.alterar(id, paciente);
         PacienteResponse pacienteResponse = mapper.toPacienteResponse(pacienteSalvo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(pacienteResponse);
     }
 }
