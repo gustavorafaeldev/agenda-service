@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll();
         http.authorizeRequests().anyRequest().authenticated();
 
-
+        http.addFilter(new CustomAuthenticationFilterConfig(authenticationManager()));
     }
 
     @Override
