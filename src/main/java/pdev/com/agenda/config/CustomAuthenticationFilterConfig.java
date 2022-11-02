@@ -5,11 +5,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -33,16 +33,15 @@ public class CustomAuthenticationFilterConfig extends UsernamePasswordAuthentica
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String usuario = request.getParameter(SPRING_SECURITY_FORM_USERNAME_KEY);
         String senha = request.getParameter(SPRING_SECURITY_FORM_PASSWORD_KEY);
-        log.info("Usuário: {}, e senha {}", usuario, senha);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usuario,
-                senha);
+        log.info("Usuario: {}, e senha: {}", usuario, senha);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usuario, senha);
         return authenticationManager.authenticate(authenticationToken);
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
         Algorithm algorithm = Algorithm.HMAC256("minha-palavra-secreta");
-        User user = (User)  authResult.getPrincipal();
+        User user = (User) auth.getPrincipal();
 
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
@@ -53,9 +52,6 @@ public class CustomAuthenticationFilterConfig extends UsernamePasswordAuthentica
         Map<String, String> token = new HashMap<>();
         token.put("access_token", access_token);
         response.setContentType(APPLICATION_JSON_VALUE);
-
         new ObjectMapper().writeValue(response.getOutputStream(), token);
-
-        //super.successfulAuthentication(request, response, chain, authResult);
     }
 }
